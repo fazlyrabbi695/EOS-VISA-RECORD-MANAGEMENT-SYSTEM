@@ -335,6 +335,11 @@ class RecordManager {
         document.getElementById('copyPassword').addEventListener('click', () => {
             this.copyPasswordToClipboard();
         });
+        
+        // Email password copy functionality
+        document.getElementById('copyEmailPassword').addEventListener('click', () => {
+            this.copyEmailPasswordToClipboard();
+        });
 
         // Bulk paste modal
         document.getElementById('processBulkPaste').addEventListener('click', () => {
@@ -449,7 +454,7 @@ class RecordManager {
 
     validateRecord(record) {
         // Required field validation - updated for new fields
-        const requiredFields = ['slNo', 'email', 'mobileNumber', 'loginPassword', 'ivacCenter', 'totalBgdFile', 'fileStartingDate'];
+        const requiredFields = ['slNo', 'email', 'mobileNumber', 'loginPassword', 'assignedPerson', 'ivacCenter', 'totalBgdFile', 'fileStartingDate'];
         for (let field of requiredFields) {
             if (!record[field]) {
                 this.showMessage(`${this.getFieldLabel(field)} is required!`, 'error');
@@ -537,10 +542,13 @@ class RecordManager {
             email: 'Email',
             mobileNumber: 'Mobile Number',
             loginPassword: 'Login Password',
+            emailPassword: 'Email Password',
+            assignedPerson: 'Assigned person for this BGD file',
             ivacCenter: 'IVAC Center',
             totalBgdFile: 'Total BGD File',
             fileStartingDate: 'File Starting Date',
-            fileSuccessDate: 'File Success Date'
+            fileSuccessDate: 'File Success Date',
+            note: 'Note'
         };
         return labels[field] || field;
     }
@@ -665,7 +673,7 @@ class RecordManager {
         
         setTimeout(() => {
             if (filteredRecords.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 40px; color: var(--secondary-color); font-style: italic;">📋 No records found. Add some records to get started!</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="13" style="text-align: center; padding: 40px; color: var(--secondary-color); font-style: italic;">📋 No records found. Add some records to get started!</td></tr>';
                 tableContainer.classList.remove('table-loading');
                 this.updateScrollIndicator(0); // Remove indicator when no records
                 return;
@@ -677,10 +685,13 @@ class RecordManager {
                     <td>${this.escapeHtml(record.email)}</td>
                     <td>${this.escapeHtml(record.mobileNumber)}</td>
                     <td>${this.escapeHtml(record.loginPassword || '123456')}</td>
+                    <td>${this.escapeHtml(record.emailPassword || '')}</td>
                     <td>${this.escapeHtml(record.ivacCenter)}</td>
+                    <td>${this.escapeHtml(record.assignedPerson || '')}</td>
                     <td>${record.totalBgdFile || ''}</td>
                     <td>${this.formatDate(record.fileStartingDate)}</td>
                     <td>${record.fileSuccessDate ? this.formatDate(record.fileSuccessDate) : ''}</td>
+                    <td>${this.escapeHtml(record.note || '')}</td>
                     <td>${this.getStatusBadge(record)}</td>
                     <td class="actions no-print">
                         <button class="btn btn-small btn-primary" onclick="recordManager.editRecord(${record.id}); this.classList.add('button-click');">Edit</button>
@@ -813,6 +824,24 @@ class RecordManager {
             passwordField.select();
             document.execCommand('copy');
             this.showMessage('Password copied to clipboard!', 'success');
+        }
+    }
+    
+    async copyEmailPasswordToClipboard() {
+        const emailPasswordField = document.getElementById('emailPassword');
+        if (!emailPasswordField.value) {
+            this.showMessage('No email password to copy!', 'warning');
+            return;
+        }
+
+        try {
+            await navigator.clipboard.writeText(emailPasswordField.value);
+            this.showMessage('Email password copied to clipboard!', 'success');
+        } catch (err) {
+            // Fallback for older browsers
+            emailPasswordField.select();
+            document.execCommand('copy');
+            this.showMessage('Email password copied to clipboard!', 'success');
         }
     }
 
@@ -961,10 +990,10 @@ class RecordManager {
 
     // Import/Export functionality
     downloadTemplate() {
-        const headers = ['Sl No', 'Email', 'Mobile Number', 'Login Password', 'IVAC Center', 'Total BGD File', 'File Starting Date', 'File Success Date', 'Status'];
+        const headers = ['Sl No', 'Email', 'Mobile Number', 'Login Password', 'Email Password', 'IVAC Center', 'Assigned Person', 'Total BGD File', 'File Starting Date', 'File Success Date', 'Note', 'Status'];
         const sampleData = [
-            ['1', 'user1@gmail.com', '+8801234567890', '123456', 'Dhaka', '5', '2024-01-15', '2024-01-20', 'Done'],
-            ['2', 'user2@gmail.com', '+8801987654321', '123456', 'Chittagong', '3', '2024-01-16', '', 'Processing']
+            ['1', 'user1@gmail.com', '+8801234567890', '123456', 'email123', 'Dhaka', 'John Doe', '5', '2024-01-15', '2024-01-20', 'Sample note', 'Done'],
+            ['2', 'user2@gmail.com', '+8801987654321', '123456', 'email456', 'Chittagong', 'Jane Smith', '3', '2024-01-16', '', 'Another note', 'Processing']
         ];
         
         let csvContent = '\ufeff'; // UTF-8 BOM for Excel compatibility
@@ -1046,6 +1075,9 @@ class RecordManager {
             'phone number': 'mobileNumber',
             'login password': 'loginPassword',
             'password': 'loginPassword',
+            'email password': 'emailPassword',
+            'assigned person': 'assignedPerson',
+            'assigned person for this bgd file': 'assignedPerson',
             'ivac center': 'ivacCenter',
             'center': 'ivacCenter',
             'total bgd file': 'totalBgdFile',
@@ -1055,7 +1087,9 @@ class RecordManager {
             'start date': 'fileStartingDate',
             'file success date': 'fileSuccessDate',
             'success date': 'fileSuccessDate',
-            'end date': 'fileSuccessDate'
+            'end date': 'fileSuccessDate',
+            'note': 'note',
+            'notes': 'note'
         };
 
         const mappedHeaders = headers.map(header => 
@@ -1229,7 +1263,7 @@ class RecordManager {
         });
 
         // Use default headers for bulk paste - updated field order
-        const headers = ['slNo', 'email', 'mobileNumber', 'loginPassword', 'ivacCenter', 'totalBgdFile', 'fileStartingDate', 'fileSuccessDate'];
+        const headers = ['slNo', 'email', 'mobileNumber', 'loginPassword', 'emailPassword', 'ivacCenter', 'assignedPerson', 'totalBgdFile', 'fileStartingDate', 'fileSuccessDate', 'note'];
         
         this.importCSVData(headers, dataRows);
         this.closeBulkPasteModal();
@@ -1241,7 +1275,7 @@ class RecordManager {
             return;
         }
 
-        const headers = ['Sl No', 'Email', 'Mobile Number', 'Login Password', 'IVAC Center', 'Total BGD File', 'File Starting Date', 'File Success Date', 'Status'];
+        const headers = ['Sl No', 'Email', 'Mobile Number', 'Login Password', 'Email Password', 'IVAC Center', 'Assigned Person', 'Total BGD File', 'File Starting Date', 'File Success Date', 'Note', 'Status'];
         const filteredRecords = this.getFilteredRecords();
         
         let csvContent = '\ufeff'; // UTF-8 BOM for Excel compatibility
@@ -1253,10 +1287,13 @@ class RecordManager {
                 record.email,
                 this.formatMobileForExport(record.mobileNumber), // Already formatted with Excel formula
                 record.loginPassword || '',
+                record.emailPassword || '',
                 record.ivacCenter,
+                record.assignedPerson || '',
                 record.totalBgdFile || '',
                 record.fileStartingDate,
                 record.fileSuccessDate || '',
+                record.note || '',
                 record.fileSuccessDate && record.fileSuccessDate.trim() ? 'Done' : 'Processing'
             ];
             
@@ -1305,10 +1342,13 @@ class RecordManager {
                 <th>Email</th>
                 <th>Mobile Number</th>
                 <th>Login Password</th>
+                <th>Email Password</th>
                 <th>IVAC Center</th>
+                <th>Assigned Person</th>
                 <th>Total BGD File</th>
                 <th>File Starting Date</th>
                 <th>File Success Date</th>
+                <th>Note</th>
                 <th>Status</th>
             </tr>
         </thead>
@@ -1322,10 +1362,13 @@ class RecordManager {
                 <td>${this.escapeHtml(record.email)}</td>
                 <td style="mso-number-format:'\@'">${this.escapeHtml(this.formatMobileForExportHTML(record.mobileNumber))}</td>
                 <td>${this.escapeHtml(record.loginPassword || '')}</td>
+                <td>${this.escapeHtml(record.emailPassword || '')}</td>
                 <td>${this.escapeHtml(record.ivacCenter)}</td>
+                <td>${this.escapeHtml(record.assignedPerson || '')}</td>
                 <td>${this.escapeHtml(record.totalBgdFile || '')}</td>
                 <td class="date">${record.fileStartingDate}</td>
                 <td class="date">${record.fileSuccessDate || ''}</td>
+                <td>${this.escapeHtml(record.note || '')}</td>
                 <td>${record.fileSuccessDate && record.fileSuccessDate.trim() ? 'Done' : 'Processing'}</td>
             </tr>`;
         });
