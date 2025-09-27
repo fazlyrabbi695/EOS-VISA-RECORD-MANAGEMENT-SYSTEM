@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EOS VISA RECORD MANAGEMENT SYSTEM</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Floating Background Shapes -->
+    <div class="floating-shapes">
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>
+                    <div class="logo"></div>
+                    EOS VISA RECORD MANAGEMENT SYSTEM
+                </h1>
+                <div class="header-controls">
+                    <button id="themeToggle" class="btn btn-secondary">🌙 Dark Mode</button>
+                    <button id="printBtn" class="btn btn-secondary">🖨️ Print</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Form Section -->
+        <section class="form-section">
+            <h2>Add New Record</h2>
+            <form id="recordForm" class="record-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="slNo">Serial No. *</label>
+                        <input type="number" id="slNo" name="slNo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required value="@gmail.com">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="mobileNumber">Mobile Number *</label>
+                        <input type="tel" id="mobileNumber" name="mobileNumber" required pattern="[0-9]{11}" placeholder="01XXXXXXXXX" maxlength="11">
+                    </div>
+                    <div class="form-group password-group">
+                        <label for="loginPassword">Login Password *</label>
+                        <div class="password-input-container">
+                            <input type="text" id="loginPassword" name="loginPassword" required value="123456">
+                            <button type="button" id="copyPassword" class="btn-icon">📋</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="ivacCenter">IVAC Center *</label>
+                        <select id="ivacCenter" name="ivacCenter" required>
+                            <option value="">Select IVAC Center</option>
+                            <option value="Dhaka">Dhaka</option>
+                            <option value="Chittagong">Chittagong</option>
+                            <option value="Sylhet">Sylhet</option>
+                            <option value="Rajshahi">Rajshahi</option>
+                            <option value="Barisal">Barisal</option>
+                            <option value="Khulna">Khulna</option>
+                            <option value="Rangpur">Rangpur</option>
+                            <option value="Mymensingh">Mymensingh</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="totalBgdFile">Total BGD File *</label>
+                        <input type="number" id="totalBgdFile" name="totalBgdFile" required min="1" placeholder="Enter number of files">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fileStartingDate">File Starting Date *</label>
+                        <input type="date" id="fileStartingDate" name="fileStartingDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="fileSuccessDate">File Success Date</label>
+                        <input type="date" id="fileSuccessDate" name="fileSuccessDate">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Add Record</button>
+                    <button type="reset" class="btn btn-secondary">Reset Form</button>
+                    <button type="button" id="cancelEdit" class="btn btn-secondary" style="display: none;">Cancel Edit</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Import/Export Section -->
+        <section class="import-export-section">
+            <h2>Import/Export</h2>
+            <div class="import-export-controls">
+                <div class="import-controls">
+                    <button id="downloadTemplate" class="btn btn-secondary">📥 Download Template CSV</button>
+                    <input type="file" id="csvImport" accept=".csv" style="display: none;">
+                    <button id="importBtn" class="btn btn-secondary">📤 Import CSV</button>
+                    <button id="bulkPasteBtn" class="btn btn-secondary">📋 Bulk Paste</button>
+                </div>
+                <div class="export-controls">
+                    <button id="exportCsv" class="btn btn-primary">📊 Export CSV</button>
+                    <button id="exportExcel" class="btn btn-primary">📈 Export Excel HTML</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search and Filter Section -->
+        <section class="search-section">
+            <h2>Search & Filter</h2>
+            <div class="search-controls">
+                <div class="search-group">
+                    <input type="text" id="searchInput" placeholder="Search by email, mobile number, IVAC center...">
+                    <button id="clearSearch" class="btn btn-secondary">Clear</button>
+                </div>
+                <div class="filter-group">
+                    <select id="centerFilter">
+                        <option value="">All IVAC Centers</option>
+                        <option value="Dhaka">Dhaka</option>
+                        <option value="Chittagong">Chittagong</option>
+                        <option value="Sylhet">Sylhet</option>
+                        <option value="Rajshahi">Rajshahi</option>
+                        <option value="Barisal">Barisal</option>
+                        <option value="Khulna">Khulna</option>
+                        <option value="Rangpur">Rangpur</option>
+                        <option value="Mymensingh">Mymensingh</option>
+                    </select>
+                    <input type="date" id="dateFrom" placeholder="From Date" title="File Starting Date From">
+                    <input type="date" id="dateTo" placeholder="To Date" title="File Starting Date To">
+                    <button id="applyFilters" class="btn btn-primary">Apply Filters</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Records Table -->
+        <section class="table-section">
+            <div class="table-header">
+                <h2>Records (<span id="recordCount">0</span>)</h2>
+                <button id="clearAllRecords" class="btn btn-danger">🗑️ Clear All</button>
+            </div>
+            <div class="table-container">
+                <table id="recordsTable" class="records-table">
+                    <thead>
+                        <tr>
+                            <th>Sl No.</th>
+                            <th>Email</th>
+                            <th>Mobile Number</th>
+                            <th>Login Password</th>
+                            <th>IVAC Center</th>
+                            <th>Total BGD File</th>
+                            <th>File Starting Date</th>
+                            <th>File Success Date</th>
+                            <th>Status</th>
+                            <th class="no-print">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recordsTableBody">
+                        <!-- Records will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Bulk Paste Modal -->
+        <div id="bulkPasteModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Bulk Paste Data</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Paste your data here (tab or comma separated):</p>
+                    <textarea id="bulkPasteText" rows="10" placeholder="Paste your data here...&#10;Example:&#10;1&#9;user1@gmail.com&#9;+8801234567890&#9;123456&#9;Dhaka&#9;5&#9;2024-01-15&#9;2024-01-20&#10;2&#9;user2@gmail.com&#9;+8801987654321&#9;123456&#9;Chittagong&#9;3&#9;2024-01-16&#9;2024-01-18"></textarea>
+                    <div class="modal-actions">
+                        <button id="processBulkPaste" class="btn btn-primary">Process Data</button>
+                        <button class="modal-close btn btn-secondary">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div id="messageContainer" class="message-container"></div>
+        
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p>&copy; 2025 Fazly Rabbi</p>
+            </div>
+        </footer>
+        
+        <!-- Password Confirmation Modal -->
+        <div id="passwordModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Password Required</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p id="passwordModalMessage">Please enter password to continue:</p>
+                    <input type="password" id="confirmPassword" placeholder="Enter password">
+                    <div class="modal-actions">
+                        <button id="confirmPasswordBtn" class="btn btn-danger">Confirm</button>
+                    </div>
+                    <div class="modal-cancel">
+                        <button class="modal-close btn btn-secondary">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
