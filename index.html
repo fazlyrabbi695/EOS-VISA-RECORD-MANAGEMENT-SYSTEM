@@ -42,6 +42,13 @@
                         <label for="email">Email *</label>
                         <input type="email" id="email" name="email" required value="@gmail.com">
                     </div>
+                    <div class="form-group password-group">
+                        <label for="emailPassword">Email Password</label>
+                        <div class="password-input-container">
+                            <input type="text" id="emailPassword" name="emailPassword">
+                            <button type="button" id="copyEmailPassword" class="btn-icon">📋</button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-row">
@@ -56,23 +63,17 @@
                             <button type="button" id="copyPassword" class="btn-icon">📋</button>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label for="phoneModel">Phone Name & Model</label>
+                        <input type="text" id="phoneModel" name="phoneModel" placeholder="Enter phone name & model (e.g., iPhone 13, Samsung Galaxy S21)">
+                    </div>
                 </div>
 
                 <div class="form-row">
-                    <div class="form-group password-group">
-                        <label for="emailPassword">Email Password</label>
-                        <div class="password-input-container">
-                            <input type="text" id="emailPassword" name="emailPassword">
-                            <button type="button" id="copyEmailPassword" class="btn-icon">📋</button>
-                        </div>
-                    </div>
                     <div class="form-group">
                         <label for="assignedPerson">Assigned person for this BGD file *</label>
                         <input type="text" id="assignedPerson" name="assignedPerson" required placeholder="Enter person name">
                     </div>
-                </div>
-
-                <div class="form-row">
                     <div class="form-group">
                         <label for="ivacCenter">IVAC Center *</label>
                         <select id="ivacCenter" name="ivacCenter" required>
@@ -88,8 +89,8 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="totalBgdFile">Total BGD File *</label>
-                        <input type="number" id="totalBgdFile" name="totalBgdFile" required min="1" placeholder="Enter number of files">
+                        <label for="totalBgdFile">Total BGD file completed*</label>
+                        <input type="number" id="totalBgdFile" name="totalBgdFile" required min="0" placeholder="Enter number of files completed">
                     </div>
                 </div>
 
@@ -175,12 +176,13 @@
                         <tr>
                             <th>Sl No.</th>
                             <th>Email</th>
+                            <th>Email Password</th>
                             <th>Mobile Number</th>
                             <th>Login Password</th>
-                            <th>Email Password</th>
-                            <th>IVAC Center</th>
+                            <th>Phone Name & Model</th>
                             <th>Assigned Person</th>
-                            <th>Total BGD File</th>
+                            <th>IVAC Center</th>
+                            <th>Total BGD file completed</th>
                             <th>File Starting Date</th>
                             <th>File Success Date</th>
                             <th>Note</th>

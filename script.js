@@ -507,8 +507,8 @@ class RecordManager {
 
         // Total BGD file validation
         const totalBgdFile = parseInt(record.totalBgdFile);
-        if (isNaN(totalBgdFile) || totalBgdFile < 1) {
-            this.showMessage('Total BGD file must be a positive number!', 'error');
+        if (isNaN(totalBgdFile) || totalBgdFile < 0) {
+            this.showMessage('Total BGD file completed must be a non-negative number!', 'error');
             return false;
         }
 
@@ -541,11 +541,12 @@ class RecordManager {
             slNo: 'Serial Number',
             email: 'Email',
             mobileNumber: 'Mobile Number',
+            phoneModel: 'Phone Name & Model',
             loginPassword: 'Login Password',
             emailPassword: 'Email Password',
             assignedPerson: 'Assigned person for this BGD file',
             ivacCenter: 'IVAC Center',
-            totalBgdFile: 'Total BGD File',
+            totalBgdFile: 'Total BGD file completed',
             fileStartingDate: 'File Starting Date',
             fileSuccessDate: 'File Success Date',
             note: 'Note'
@@ -607,6 +608,15 @@ class RecordManager {
     }
 
     duplicateRecord(id) {
+        console.log('duplicateRecord called with id:', id);
+        this.showPasswordModal('duplicate this record', () => {
+            console.log('Executing duplicate for id:', id);
+            this.performDuplicateRecord(id);
+        });
+    }
+    
+    performDuplicateRecord(id) {
+        console.log('performDuplicateRecord called with id:', id);
         const record = this.records.find(r => r.id === id);
         if (!record) return;
 
@@ -634,6 +644,7 @@ class RecordManager {
         this.renderTable();
         this.updateRecordCount();
         this.showMessage('Record duplicated successfully! Please update email and mobile number to remove duplicate markers.', 'info');
+        console.log('Record duplication completed');
     }
 
     setDefaultValues() {
@@ -683,11 +694,12 @@ class RecordManager {
                 <tr class="table-row-enter" style="animation-delay: ${index * 0.05}s">
                     <td>${record.slNo}</td>
                     <td>${this.escapeHtml(record.email)}</td>
+                    <td>${this.escapeHtml(record.emailPassword || '')}</td>
                     <td>${this.escapeHtml(record.mobileNumber)}</td>
                     <td>${this.escapeHtml(record.loginPassword || '123456')}</td>
-                    <td>${this.escapeHtml(record.emailPassword || '')}</td>
-                    <td>${this.escapeHtml(record.ivacCenter)}</td>
+                    <td>${this.escapeHtml(record.phoneModel || '')}</td>
                     <td>${this.escapeHtml(record.assignedPerson || '')}</td>
+                    <td>${this.escapeHtml(record.ivacCenter)}</td>
                     <td>${record.totalBgdFile || ''}</td>
                     <td>${this.formatDate(record.fileStartingDate)}</td>
                     <td>${record.fileSuccessDate ? this.formatDate(record.fileSuccessDate) : ''}</td>
@@ -990,10 +1002,10 @@ class RecordManager {
 
     // Import/Export functionality
     downloadTemplate() {
-        const headers = ['Sl No', 'Email', 'Mobile Number', 'Login Password', 'Email Password', 'IVAC Center', 'Assigned Person', 'Total BGD File', 'File Starting Date', 'File Success Date', 'Note', 'Status'];
+        const headers = ['Sl No', 'Email', 'Email Password', 'Mobile Number', 'Login Password', 'Phone Name & Model', 'Assigned Person', 'IVAC Center', 'Total BGD file completed', 'File Starting Date', 'File Success Date', 'Note', 'Status'];
         const sampleData = [
-            ['1', 'user1@gmail.com', '+8801234567890', '123456', 'email123', 'Dhaka', 'John Doe', '5', '2024-01-15', '2024-01-20', 'Sample note', 'Done'],
-            ['2', 'user2@gmail.com', '+8801987654321', '123456', 'email456', 'Chittagong', 'Jane Smith', '3', '2024-01-16', '', 'Another note', 'Processing']
+            ['1', 'user1@gmail.com', 'email123', '+8801234567890', '123456', 'iPhone 13', 'John Doe', 'Dhaka', '5', '2024-01-15', '2024-01-20', 'Sample note', 'Done'],
+            ['2', 'user2@gmail.com', 'email456', '+8801987654321', '123456', 'Samsung Galaxy S21', 'Jane Smith', 'Chittagong', '3', '2024-01-16', '', 'Another note', 'Processing']
         ];
         
         let csvContent = '\ufeff'; // UTF-8 BOM for Excel compatibility
@@ -1073,6 +1085,11 @@ class RecordManager {
             'mobile number': 'mobileNumber',
             'phone': 'mobileNumber',
             'phone number': 'mobileNumber',
+            'phone model': 'phoneModel',
+            'phone name & model': 'phoneModel',
+            'phone name and model': 'phoneModel',
+            'model': 'phoneModel',
+            'device model': 'phoneModel',
             'login password': 'loginPassword',
             'password': 'loginPassword',
             'email password': 'emailPassword',
@@ -1080,6 +1097,7 @@ class RecordManager {
             'assigned person for this bgd file': 'assignedPerson',
             'ivac center': 'ivacCenter',
             'center': 'ivacCenter',
+            'total bgd file completed': 'totalBgdFile',
             'total bgd file': 'totalBgdFile',
             'bgd file': 'totalBgdFile',
             'file starting date': 'fileStartingDate',
@@ -1262,8 +1280,8 @@ class RecordManager {
             return cells.map(cell => cell.trim());
         });
 
-        // Use default headers for bulk paste - updated field order
-        const headers = ['slNo', 'email', 'mobileNumber', 'loginPassword', 'emailPassword', 'ivacCenter', 'assignedPerson', 'totalBgdFile', 'fileStartingDate', 'fileSuccessDate', 'note'];
+        // Use default headers for bulk paste - updated field order to match UI
+        const headers = ['slNo', 'email', 'emailPassword', 'mobileNumber', 'loginPassword', 'phoneModel', 'assignedPerson', 'ivacCenter', 'totalBgdFile', 'fileStartingDate', 'fileSuccessDate', 'note'];
         
         this.importCSVData(headers, dataRows);
         this.closeBulkPasteModal();
@@ -1275,7 +1293,7 @@ class RecordManager {
             return;
         }
 
-        const headers = ['Sl No', 'Email', 'Mobile Number', 'Login Password', 'Email Password', 'IVAC Center', 'Assigned Person', 'Total BGD File', 'File Starting Date', 'File Success Date', 'Note', 'Status'];
+        const headers = ['Sl No', 'Email', 'Email Password', 'Mobile Number', 'Login Password', 'Phone Name & Model', 'Assigned Person', 'IVAC Center', 'Total BGD file completed', 'File Starting Date', 'File Success Date', 'Note', 'Status'];
         const filteredRecords = this.getFilteredRecords();
         
         let csvContent = '\ufeff'; // UTF-8 BOM for Excel compatibility
@@ -1285,11 +1303,12 @@ class RecordManager {
             const row = [
                 record.slNo,
                 record.email,
+                record.emailPassword || '',
                 this.formatMobileForExport(record.mobileNumber), // Already formatted with Excel formula
                 record.loginPassword || '',
-                record.emailPassword || '',
-                record.ivacCenter,
+                record.phoneModel || '',
                 record.assignedPerson || '',
+                record.ivacCenter,
                 record.totalBgdFile || '',
                 record.fileStartingDate,
                 record.fileSuccessDate || '',
@@ -1299,7 +1318,7 @@ class RecordManager {
             
             // Handle mobile number separately since it's already formatted
             return row.map((field, index) => {
-                if (index === 2) { // Mobile number column
+                if (index === 3) { // Mobile number column (now at position 3)
                     return field; // Already formatted with Excel formula
                 }
                 return `"${String(field).replace(/"/g, '""')}"`;
@@ -1340,12 +1359,13 @@ class RecordManager {
             <tr>
                 <th>Sl No</th>
                 <th>Email</th>
+                <th>Email Password</th>
                 <th>Mobile Number</th>
                 <th>Login Password</th>
-                <th>Email Password</th>
-                <th>IVAC Center</th>
+                <th>Phone Name & Model</th>
                 <th>Assigned Person</th>
-                <th>Total BGD File</th>
+                <th>IVAC Center</th>
+                <th>Total BGD file completed</th>
                 <th>File Starting Date</th>
                 <th>File Success Date</th>
                 <th>Note</th>
@@ -1360,11 +1380,12 @@ class RecordManager {
             <tr>
                 <td>${this.escapeHtml(record.slNo)}</td>
                 <td>${this.escapeHtml(record.email)}</td>
+                <td>${this.escapeHtml(record.emailPassword || '')}</td>
                 <td style="mso-number-format:'\@'">${this.escapeHtml(this.formatMobileForExportHTML(record.mobileNumber))}</td>
                 <td>${this.escapeHtml(record.loginPassword || '')}</td>
-                <td>${this.escapeHtml(record.emailPassword || '')}</td>
-                <td>${this.escapeHtml(record.ivacCenter)}</td>
+                <td>${this.escapeHtml(record.phoneModel || '')}</td>
                 <td>${this.escapeHtml(record.assignedPerson || '')}</td>
+                <td>${this.escapeHtml(record.ivacCenter)}</td>
                 <td>${this.escapeHtml(record.totalBgdFile || '')}</td>
                 <td class="date">${record.fileStartingDate}</td>
                 <td class="date">${record.fileSuccessDate || ''}</td>
